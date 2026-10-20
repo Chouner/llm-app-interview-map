@@ -94,6 +94,21 @@ def main(path="data/graph.json"):
     print(f"根节点 {len(roots)} 个：{', '.join(roots)}")
     print(f"末端节点 {len(leaves)} 个")
 
+    # 选型指南里引用的知识点必须存在
+    import os
+    gpath = os.path.join(os.path.dirname(path), "guide.json")
+    if os.path.exists(gpath):
+        with open(gpath, encoding="utf-8") as f:
+            guide = json.load(f)
+        refs = 0
+        for st in guide["steps"]:
+            for op in st["options"]:
+                for nid in op["nodes"]:
+                    refs += 1
+                    if nid not in idset:
+                        errors.append(f"选型指南「{op['when']}」引用了不存在的知识点 {nid}")
+        print(f"选型指南：{len(guide['steps'])} 个问题，{sum(len(s['options']) for s in guide['steps'])} 种情况，引用知识点 {refs} 次")
+
     if errors:
         print("\n".join(["", "错误："] + errors))
         sys.exit(1)
